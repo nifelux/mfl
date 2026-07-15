@@ -1,39 +1,56 @@
-<!-- my-investments.html -->
-<div class="container">
-    <h2>My Investments</h2>
-    <div id="assets-list" style="margin-top: 20px;"></div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="assets/js/supabase.js"></script>
-<script>
-    async function loadAssets() {
-        const user = await checkAuth();
-        const { data: assets } = await sb.from('user_products')
-            .select('*, products(name)')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false });
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Assets - MFL</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="container">
+        <h2>My Assets</h2>
+        <p style="color: var(--text-muted); margin-bottom: 24px;">Tracking your daily earnings</p>
 
-        const container = document.getElementById('assets-list');
-        if (assets.length === 0) container.innerHTML = '<p>No active investments.</p>';
+        <div id="assets-list"></div>
+    </div>
 
-        assets.forEach(a => {
-            const progress = (a.days_collected / a.total_days) * 100;
-            container.innerHTML += `
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">🏠<br>Home</a>
+        <a href="products.html" class="nav-item">📦<br>Invest</a>
+        <a href="my-investments.html" class="nav-item active">📈<br>Assets</a>
+        <a href="profile.html" class="nav-item">👤<br>Account</a>
+    </nav>
+
+    <script src="assets/js/supabase.js"></script>
+    <script>
+        async function loadAssets() {
+            const user = await checkAuth();
+            const { data: assets } = await sb.from('user_products').select('*, products(name)').eq('user_id', user.id).order('created_at', { ascending: false });
+            const list = document.getElementById('assets-list');
+            
+            if(!assets.length) { list.innerHTML = `<div class="card" style="text-align:center">No active plans</div>`; return; }
+
+            assets.forEach(a => {
+                const progress = (a.days_collected / a.total_days) * 100;
+                list.innerHTML += `
                 <div class="card">
-                    <div style="display: flex; justify-content: space-between;">
-                        <strong>${a.products.name}</strong>
-                        <span style="color: ${a.status === 'active' ? '#00a854' : '#848e9c'}">${a.status.toUpperCase()}</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h4 style="margin: 0;">${a.products.name}</h4>
+                        <span style="font-size: 12px; padding: 4px 8px; border-radius: 20px; background: ${a.status === 'active' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(148, 163, 184, 0.1)'}; color: ${a.status === 'active' ? 'var(--success)' : 'var(--text-muted)'};">
+                            ${a.status.toUpperCase()}
+                        </span>
                     </div>
-                    <div style="margin: 10px 0; height: 6px; background: #334155; border-radius: 3px;">
-                        <div style="width: ${progress}%; height: 100%; background: var(--primary); border-radius: 3px;"></div>
+                    <div style="background: var(--bg); height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 12px;">
+                        <div style="background: var(--primary); width: ${progress}%; height: 100%;"></div>
                     </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);">
-                        <span>Progress: ${a.days_collected}/${a.total_days} Days</span>
-                        <span>Total Earned: ${money(a.days_collected * a.daily_income)}</span>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                        <span style="color: var(--text-muted);">Collected: ${a.days_collected}/${a.total_days} Days</span>
+                        <span style="color: var(--success); font-weight: 600;">+ ${money(a.days_collected * a.daily_income)}</span>
                     </div>
-                </div>
-            `;
-        });
-    }
-    loadAssets();
-</script>
+                </div>`;
+            });
+        }
+        loadAssets();
+    </script>
+</body>
+</html>
