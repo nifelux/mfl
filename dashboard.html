@@ -1,0 +1,44 @@
+<!-- dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MFL - Dashboard</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header-card card">
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Total Balance</p>
+            <h1 id="balance" style="font-size: 2.5rem; margin: 10px 0;">₦0.00</h1>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <a href="recharge.html" class="btn btn-primary">Recharge</a>
+                <a href="withdraw.html" class="btn" style="background: #334155; color: white;">Withdraw</a>
+            </div>
+        </div>
+
+        <div class="grid-menu" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px;">
+            <a href="products.html" class="menu-item card">📦<br>Invest</a>
+            <a href="my-investments.html" class="menu-item card">📈<br>Assets</a>
+            <a href="team.html" class="menu-item card">👥<br>Team</a>
+            <a href="checkin.html" class="menu-item card">📅<br>Check-in</a>
+            <a href="profile.html" class="menu-item card">👤<br>Profile</a>
+            <a href="about.html" class="menu-item card">ℹ️<br>About</a>
+        </div>
+    </div>
+
+    <script src="assets/js/supabase.js"></script>
+    <script>
+        async function loadDashboard() {
+            const user = await checkAuth();
+            const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
+            
+            if (profile) {
+                document.getElementById('balance').innerText = money(profile.wallet_balance);
+            }
+        }
+        loadDashboard();
+    </script>
+</body>
+</html>
