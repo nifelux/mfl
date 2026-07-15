@@ -1,0 +1,39 @@
+<!-- my-investments.html -->
+<div class="container">
+    <h2>My Investments</h2>
+    <div id="assets-list" style="margin-top: 20px;"></div>
+</div>
+
+<script src="assets/js/supabase.js"></script>
+<script>
+    async function loadAssets() {
+        const user = await checkAuth();
+        const { data: assets } = await sb.from('user_products')
+            .select('*, products(name)')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false });
+
+        const container = document.getElementById('assets-list');
+        if (assets.length === 0) container.innerHTML = '<p>No active investments.</p>';
+
+        assets.forEach(a => {
+            const progress = (a.days_collected / a.total_days) * 100;
+            container.innerHTML += `
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between;">
+                        <strong>${a.products.name}</strong>
+                        <span style="color: ${a.status === 'active' ? '#00a854' : '#848e9c'}">${a.status.toUpperCase()}</span>
+                    </div>
+                    <div style="margin: 10px 0; height: 6px; background: #334155; border-radius: 3px;">
+                        <div style="width: ${progress}%; height: 100%; background: var(--primary); border-radius: 3px;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);">
+                        <span>Progress: ${a.days_collected}/${a.total_days} Days</span>
+                        <span>Total Earned: ${money(a.days_collected * a.daily_income)}</span>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    loadAssets();
+</script>
