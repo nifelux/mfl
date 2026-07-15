@@ -1,0 +1,53 @@
+<!-- products.html -->
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Investment Plans</h2>
+        <a href="dashboard.html" style="color: var(--primary);">Back</a>
+    </div>
+    
+    <div id="product-list">
+        <!-- Products load here -->
+        <p>Loading plans...</p>
+    </div>
+</div>
+
+<script src="assets/js/supabase.js"></script>
+<script>
+    async function loadProducts() {
+        const { data: products } = await sb.from('products').select('*').eq('is_active', true).order('price', { ascending: true });
+        const list = document.getElementById('product-list');
+        list.innerHTML = '';
+
+        products.forEach(p => {
+            list.innerHTML += `
+                <div class="card product-card" style="margin-bottom: 20px;">
+                    <img src="${p.image_url || 'https://via.placeholder.com/150'}" style="width: 100%; border-radius: 10px;">
+                    <h3 style="margin: 10px 0;">${p.name}</h3>
+                    <div style="display: flex; justify-content: space-between; color: var(--text-muted);">
+                        <span>Price: <b>${money(p.price)}</b></span>
+                        <span>Daily: <b>${money(p.daily_income)}</b></span>
+                    </div>
+                    <div style="margin: 10px 0; font-size: 0.9rem;">
+                        Duration: ${p.duration_days} Days | Total: ${money(p.daily_income * p.duration_days)}
+                    </div>
+                    <button onclick="buyProduct(${p.id})" class="btn btn-primary">Invest Now</button>
+                </div>
+            `;
+        });
+    }
+
+    async function buyProduct(id) {
+        if (!confirm("Are you sure you want to purchase this plan?")) return;
+        
+        const { data, error } = await sb.rpc('purchase_product', { p_id: id });
+        
+        if (error) alert(error.message);
+        else if (data === 'success') {
+            alert("Investment Successful!");
+            location.href = 'my-investments.html';
+        } else {
+            alert(data); // "Insufficient balance" etc.
+        }
+    }
+    loadProducts();
+</script>
