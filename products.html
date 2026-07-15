@@ -1,86 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Investment Plans - MFL</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invest - MFL</title>
     <link rel="stylesheet" href="assets/css/styles.css">
-    
-    <!-- 1. ALWAYS LOAD SUPABASE CDN FIRST -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <div class="container">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2>Investment Plans</h2>
-            <a href="dashboard.html" style="color: var(--primary);">Back</a>
-        </div>
-        
+        <h2 style="margin-bottom: 4px;">Investment Plans</h2>
+        <p style="color: var(--text-muted); margin-bottom: 24px;">High-yield daily returns</p>
+
         <div id="product-list">
-            <p>Loading plans...</p>
+            <!-- Loader -->
+            <div class="card" style="text-align: center; color: var(--text-muted);">Fetching plans...</div>
         </div>
     </div>
 
-    <!-- 2. THEN LOAD YOUR SHARED JS (which creates 'sb') -->
-    <script src="assets/js/supabase.js"></script>
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">🏠<br>Home</a>
+        <a href="products.html" class="nav-item active">📦<br>Invest</a>
+        <a href="my-investments.html" class="nav-item">📈<br>Assets</a>
+        <a href="profile.html" class="nav-item">👤<br>Account</a>
+    </nav>
 
-    <!-- 3. FINALLY RUN YOUR PAGE JS -->
+    <script src="assets/js/supabase.js"></script>
     <script>
         async function loadProducts() {
-            const user = await checkAuth(); // Ensures user is logged in
-            
-            const { data: products, error } = await sb
-                .from('products')
-                .select('*')
-                .eq('is_active', true)
-                .order('price', { ascending: true });
-
-            if (error) {
-                console.error("Error loading products:", error);
-                return;
-            }
-
+            const { data: products } = await sb.from('products').select('*').eq('is_active', true).order('price', { ascending: true });
             const list = document.getElementById('product-list');
             list.innerHTML = '';
 
-            if (!products || products.length === 0) {
-                list.innerHTML = '<p style="color: var(--text-muted);">No investment plans available right now.</p>';
-                return;
-            }
-
             products.forEach(p => {
                 list.innerHTML += `
-                    <div class="card product-card" style="margin-bottom: 20px;">
-                        <img src="${p.image_url || 'https://via.placeholder.com/300x150?text=MFL+Investment'}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 10px;">
-                        <h3 style="margin: 10px 0;">${p.name}</h3>
-                        <div style="display: flex; justify-content: space-between; color: var(--text-muted); margin-bottom: 8px;">
-                            <span>Price: <b style="color: white;">${money(p.price)}</b></span>
-                            <span>Daily: <b style="color: #00a854;">${money(p.daily_income)}</b></span>
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <img src="${p.image_url || 'https://images.unsplash.com/photo-1611974717482-58a252ca00bb?auto=format&fit=crop&q=80&w=400'}" style="width: 100%; height: 160px; object-fit: cover;">
+                    <div style="padding: 20px;">
+                        <h3 style="margin: 0 0 10px 0;">${p.name}</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+                            <div><small style="color: var(--text-muted);">Price</small><br><b>${money(p.price)}</b></div>
+                            <div><small style="color: var(--text-muted);">Daily Income</small><br><b style="color: var(--success);">${money(p.daily_income)}</b></div>
+                            <div><small style="color: var(--text-muted);">Duration</small><br><b>${p.duration_days} Days</b></div>
+                            <div><small style="color: var(--text-muted);">Total Return</small><br><b>${money(p.daily_income * p.duration_days)}</b></div>
                         </div>
-                        <div style="margin-bottom: 15px; font-size: 0.85rem; color: var(--text-muted);">
-                            Duration: ${p.duration_days} Days | Total Return: <b style="color: white;">${money(p.daily_income * p.duration_days)}</b>
-                        </div>
-                        <button onclick="buyProduct(${p.id})" class="btn btn-primary">Invest Now</button>
+                        <button onclick="buyProduct(${p.id})" class="btn btn-primary">Purchase Plan</button>
                     </div>
-                `;
+                </div>`;
             });
         }
-
         async function buyProduct(id) {
-            if (!confirm("Are you sure you want to purchase this plan?")) return;
-            
+            if (!confirm("Start this investment?")) return;
             const { data, error } = await sb.rpc('purchase_product', { p_id: id });
-            
-            if (error) {
-                alert("Error: " + error.message);
-            } else if (data === 'success') {
-                alert("Investment Successful!");
-                location.href = 'my-investments.html';
-            } else {
-                alert(data); // Returns 'Insufficient balance' or other custom RPC string messages
-            }
+            if (error) alert(error.message);
+            else if (data === 'success') { location.href = 'my-investments.html'; }
+            else alert(data);
         }
-
         loadProducts();
     </script>
 </body>
