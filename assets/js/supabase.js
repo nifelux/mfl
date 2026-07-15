@@ -3,11 +3,29 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const money = (val) => "₦" + parseFloat(val).toLocaleString();
+// Money Formatter (Naira)
+const money = (val) => {
+    return "₦" + parseFloat(val).toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+};
 
-// Shared auth guard
+// Auth Guard: Use this at the top of every protected page (dashboard, recharge, etc.)
 async function checkAuth() {
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) location.href = 'login.html';
+    const { data: { session }, error } = await sb.auth.getSession();
+    
+    if (error || !session) {
+        window.location.href = 'login.html';
+        return null;
+    }
+    
+    // Check if user is an admin if needed (optional)
     return session.user;
+}
+
+// Logout Helper
+async function logout() {
+    await sb.auth.signOut();
+    window.location.href = 'login.html';
 }
