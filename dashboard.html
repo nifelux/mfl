@@ -1,44 +1,67 @@
-<!-- dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MFL - Dashboard</title>
+    <title>Dashboard - MFL</title>
     <link rel="stylesheet" href="assets/css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <div class="container">
-        <div class="header-card card">
-            <p style="color: var(--text-muted); font-size: 0.9rem;">Total Balance</p>
-            <h1 id="balance" style="font-size: 2.5rem; margin: 10px 0;">₦0.00</h1>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <a href="recharge.html" class="btn btn-primary">Recharge</a>
-                <a href="withdraw.html" class="btn" style="background: #334155; color: white;">Withdraw</a>
+        <div class="header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <div>
+                <p style="color: var(--text-muted); margin: 0;">Welcome back,</p>
+                <h3 id="user-name" style="margin: 0;">User</h3>
+            </div>
+            <div style="background: var(--card); padding: 8px; border-radius: 50%; border: 1px solid var(--border);">🔔</div>
+        </div>
+
+        <div class="card balance-card">
+            <p style="opacity: 0.8; font-size: 14px; margin-bottom: 8px;">Available Balance</p>
+            <h1 id="balance" style="font-size: 32px; margin: 0 0 20px 0;">₦0.00</h1>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <button onclick="location.href='recharge.html'" class="btn btn-outline">Deposit</button>
+                <button onclick="location.href='withdraw.html'" class="btn btn-outline">Withdraw</button>
             </div>
         </div>
 
-        <div class="grid-menu" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px;">
-            <a href="products.html" class="menu-item card">📦<br>Invest</a>
-            <a href="my-investments.html" class="menu-item card">📈<br>Assets</a>
-            <a href="team.html" class="menu-item card">👥<br>Team</a>
-            <a href="checkin.html" class="menu-item card">📅<br>Check-in</a>
-            <a href="profile.html" class="menu-item card">👤<br>Profile</a>
-            <a href="about.html" class="menu-item card">ℹ️<br>About</a>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 24px;">
+            <a href="team.html" class="nav-item">
+                <div class="card" style="padding: 15px; margin-bottom: 5px;">👥</div>Team
+            </a>
+            <a href="checkin.html" class="nav-item">
+                <div class="card" style="padding: 15px; margin-bottom: 5px;">📅</div>Check-in
+            </a>
+            <a href="gift.html" class="nav-item">
+                <div class="card" style="padding: 15px; margin-bottom: 5px;">🎁</div>Gift
+            </a>
+            <a href="about.html" class="nav-item">
+                <div class="card" style="padding: 15px; margin-bottom: 5px;">🏢</div>About
+            </a>
         </div>
+
+        <h4 style="margin: 24px 0 16px 0;">Market Highlights</h4>
+        <div id="highlight-product"></div>
     </div>
+
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item active">🏠<br>Home</a>
+        <a href="products.html" class="nav-item">📦<br>Invest</a>
+        <a href="my-investments.html" class="nav-item">📈<br>Assets</a>
+        <a href="profile.html" class="nav-item">👤<br>Account</a>
+    </nav>
 
     <script src="assets/js/supabase.js"></script>
     <script>
-        async function loadDashboard() {
+        async function init() {
             const user = await checkAuth();
             const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
-            
-            if (profile) {
+            if(profile) {
                 document.getElementById('balance').innerText = money(profile.wallet_balance);
+                document.getElementById('user-name').innerText = profile.full_name.split(' ')[0];
             }
         }
-        loadDashboard();
+        init();
     </script>
 </body>
 </html>
