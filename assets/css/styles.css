@@ -1,0 +1,40 @@
+:root {
+    --primary: #0052cc; /* MFL Blue */
+    --secondary: #00a854; /* Success Green */
+    --bg-dark: #0a0b0d;
+    --card-bg: #16181d;
+    --text-main: #ffffff;
+    --text-muted: #848e9c;
+    --border: #2b2f36;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { 
+    background-color: var(--bg-dark); 
+    color: var(--text-main); 
+    font-family: 'Inter', sans-serif; 
+    line-height: 1.6;
+}
+
+.container { padding: 20px; max-width: 500px; margin: 0 auto; }
+
+.btn {
+    display: block; width: 100%; padding: 15px;
+    border-radius: 8px; border: none; font-weight: bold;
+    cursor: pointer; text-align: center; text-decoration: none;
+}
+.btn-primary { background: var(--primary); color: white; }
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+
+input {
+    width: 100%; padding: 12px; margin: 10px 0;
+    background: #202329; border: 1px solid var(--border);
+    color: white; border-radius: 6px;
+}
